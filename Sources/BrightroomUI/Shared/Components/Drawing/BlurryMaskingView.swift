@@ -122,7 +122,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   private let drawingView = SmoothPathDrawingView()
   
-  private let canvasView = CanvasView()
+  public let canvasView = CanvasView()
   
   private var subscriptions = Set<AnyCancellable>()
   
