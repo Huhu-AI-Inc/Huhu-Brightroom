@@ -49,7 +49,7 @@ public final class CanvasView: PixelEditorCodeBasedView {
   private var subscriptions: Set<AnyCancellable> = .init()
   
   private var resolvedShapeLayers: [CAShapeLayer] = []
-  private var previewShapeLayer: CAShapeLayer?
+  public var previewShapeLayer: CAShapeLayer?
   
   override init(frame: CGRect) {
     super.init(frame: frame)
