@@ -48,11 +48,12 @@ public final class CanvasView: PixelEditorCodeBasedView {
   private let store = UIStateStore<State, Never>(initialState: .init())
   private var subscriptions: Set<AnyCancellable> = .init()
   
-  private var resolvedShapeLayers: [CAShapeLayer] = []
+  public var resolvedShapeLayers: [CAShapeLayer] = []
   public var previewShapeLayer: CAShapeLayer?
   
   override init(frame: CGRect) {
     super.init(frame: frame)
+    print("WSI CanvasView init")
     isOpaque = false
     
     if let tiledLayer = layer as? CATiledLayer {
@@ -89,7 +90,7 @@ public final class CanvasView: PixelEditorCodeBasedView {
   }
   
   private static func makeShapeLayer(for brush: OvalBrush) -> CAShapeLayer {
-    
+    print("WSI Canvas makeShapeLayer")
     let layer = CAShapeLayer()
         
     layer.lineWidth = brush.pixelSize

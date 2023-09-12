@@ -196,15 +196,16 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
         canvasView.updatePreviewDrawing()
       }
       $0.didFinishPan = { [unowned self] path in
+          print("WSI BlurryMaskingView didFinishPan")
         canvasView.updatePreviewDrawing()
-        
+          print("WSI BlurryMaskingView didFinishPan 1")
         let _path = (path.copy() as! UIBezierPath)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: _path)
-        
+          print("WSI BlurryMaskingView didFinishPan 2")
         canvasView.previewDrawnPath = nil
         editingStack.append(blurringMaskPaths: CollectionOfOne(drawnPath))
-        
+          print("WSI BlurryMaskingView didFinishPan 3")
         currentBrush = nil
       }
     }
