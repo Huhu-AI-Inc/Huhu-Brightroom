@@ -116,11 +116,11 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   private let containerView = ContainerView()
   
-  private let backdropImageView = _ImageView()
+    public let backdropImageView = _ImageView()
   
-  private let blurryImageView = _ImageView()
+  public let blurryImageView = _ImageView()
   
-  private let drawingView = SmoothPathDrawingView()
+  public let drawingView = SmoothPathDrawingView()
   
   public let canvasView = CanvasView()
   
