@@ -152,7 +152,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     super.init(frame: .zero)
     
     setUp: do {
-      backgroundColor = .black
+      backgroundColor = .clear
       
       addSubview(scrollView)
       
@@ -174,7 +174,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
       blurryImageView.accessibilityIdentifier = "blurryImageView"
       blurryImageView.isUserInteractionEnabled = false
       blurryImageView.contentMode = .scaleAspectFit
-      
+      blurryImageView.backgroundColor = .black
       blurryImageView.mask = canvasView
       clipsToBounds = true
     }
@@ -196,16 +196,12 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
         canvasView.updatePreviewDrawing()
       }
       $0.didFinishPan = { [unowned self] path in
-          print("WSI BlurryMaskingView didFinishPan")
         canvasView.updatePreviewDrawing()
-          print("WSI BlurryMaskingView didFinishPan 1")
         let _path = (path.copy() as! UIBezierPath)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: _path)
-          print("WSI BlurryMaskingView didFinishPan 2")
         canvasView.previewDrawnPath = nil
         editingStack.append(blurringMaskPaths: CollectionOfOne(drawnPath))
-          print("WSI BlurryMaskingView didFinishPan 3")
         currentBrush = nil
       }
     }
@@ -234,7 +230,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
     defaultAppearance: do {
       setLoadingOverlay(factory: {
-          LoadingBlurryOverlayView(effect: UIBlurEffect(style: .prominent), activityIndicatorStyle: .medium)
+          LoadingBlurryOverlayView(effect: UIBlurEffect(style: .dark), activityIndicatorStyle: .large)
       })
     }
   }
