@@ -139,6 +139,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   private var isBinding = false
   
+    private var baseImage: CIImage?
   // MARK: - Initializers
   
   public init(editingStack: EditingStack) {
@@ -176,6 +177,8 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
       blurryImageView.contentMode = .scaleAspectFit
       blurryImageView.mask = canvasView
       clipsToBounds = true
+      baseImage = generateCIImage(color: .gray, size: CGSize(width: blurryImageView.frame.width, height: blurryImageView.frame.height))
+      
     }
     
     drawingView.handlers = drawingView.handlers&>.modify {
@@ -234,6 +237,20 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
 //    }
   }
   
+    func generateCIImage(color: UIColor, size: CGSize) -> CIImage? {
+        // Convert UIColor to CIColor
+        let ciColor = CIColor(color: color)
+        
+        // Use CIFilter to create a CIImage with the specified color
+        guard let filter = CIFilter(name: "CIConstantColorGenerator") else { return nil }
+        filter.setValue(ciColor, forKey: kCIInputColorKey)
+        guard let outputImage = filter.outputImage else { return nil }
+        
+        // Crop the generated CIImage to the specified size
+        return outputImage.cropped(to: CGRect(origin: .zero, size: size))
+    }
+    
+    
   override public func willMove(toSuperview newSuperview: UIView?) {
     super.willMove(toSuperview: newSuperview)
     
@@ -300,9 +317,10 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           if let state = state.mapIfPresent(\.loadedState) {
             
               state.ifChanged(\.editingPreviewImage) { image in
-              self.backdropImageView.display(image: image)
-              self.blurryImageView.display(image: BlurredMask.blur(image: image))
-
+                  self.backdropImageView.display(image: image)
+//              self.blurryImageView.display(image: BlurredMask.blur(image: image))
+                  self.blurryImageView.display(image: self.baseImage)
+                  
             }
             
             state.ifChanged(\.currentEdit.drawings.blurredMaskPaths) { paths in
