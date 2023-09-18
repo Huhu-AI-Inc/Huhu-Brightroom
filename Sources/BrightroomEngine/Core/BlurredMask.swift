@@ -146,4 +146,26 @@ public struct BlurredMask: GraphicsDrawing {
       
     return outputImage
   }
+    
+    public static func fakeMask(image: CIImage) -> CIImage? {
+        
+        return generateGrayImage(width: image.extent.width, height: image.extent.height, grayValue: 0.5)
+    }
+    
+    
+    static func generateGrayImage(width: CGFloat, height: CGFloat, grayValue: CGFloat) -> CIImage? {
+        // Ensure the gray value is between 0.0 and 1.0
+        let clampedGray = max(0.0, min(1.0, grayValue))
+        
+        // Create a color from the gray value
+        let color = CIColor(red: clampedGray, green: clampedGray, blue: clampedGray)
+        
+        // Use the CIColorGenerator filter to generate a CIImage of that color
+        let filter = CIFilter(name: "CIConstantColorGenerator", parameters: [kCIInputColorKey: color])
+        
+        // Set the extent of the image to the desired width and height
+        let image = filter?.outputImage?.cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
+        
+        return image
+    }
 }

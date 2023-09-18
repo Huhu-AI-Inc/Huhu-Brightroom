@@ -139,7 +139,6 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   private var isBinding = false
   
-    private var baseImage: CIImage?
   // MARK: - Initializers
   
   public init(editingStack: EditingStack) {
@@ -177,7 +176,6 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
       blurryImageView.contentMode = .scaleAspectFit
       blurryImageView.mask = canvasView
       clipsToBounds = true
-      baseImage = generateCIImage(color: .gray, size: CGSize(width: blurryImageView.frame.width, height: blurryImageView.frame.height))
       
     }
     
@@ -318,9 +316,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
             
               state.ifChanged(\.editingPreviewImage) { image in
                   self.backdropImageView.display(image: image)
-                  self.blurryImageView.display(image: BlurredMask.blur(image: image))
-//                  self.blurryImageView.display(image: self.baseImage)
-                  
+                  self.blurryImageView.display(image: BlurredMask.fakeMask(image: image))
             }
             
             state.ifChanged(\.currentEdit.drawings.blurredMaskPaths) { paths in
