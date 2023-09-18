@@ -187,7 +187,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           return
         }
         
-        currentBrush = .init(color: .black, pixelSize: pixelSize)
+        currentBrush = .init(color: .lightGray, pixelSize: pixelSize)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: path)
         canvasView.previewDrawnPath = drawnPath
