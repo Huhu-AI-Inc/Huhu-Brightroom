@@ -151,7 +151,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
             
     super.init(frame: .zero)
     
-    setUp: do {
+  setUp: do {
       backgroundColor = .clear
       
       addSubview(scrollView)
@@ -174,7 +174,6 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
       blurryImageView.accessibilityIdentifier = "blurryImageView"
       blurryImageView.isUserInteractionEnabled = false
       blurryImageView.contentMode = .scaleAspectFit
-      blurryImageView.backgroundColor = .black
       blurryImageView.mask = canvasView
       clipsToBounds = true
     }
@@ -300,10 +299,11 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           
           if let state = state.mapIfPresent(\.loadedState) {
             
-            state.ifChanged(\.editingPreviewImage) { image in
+              state.ifChanged(\.editingPreviewImage) { image in
               self.backdropImageView.display(image: image)
 //              self.blurryImageView.display(image: BlurredMask.blur(image: image))
-                self.blurryImageView.display(image: image)
+                
+                  self.blurryImageView.display(image: CIImage(color: .gray))
             }
             
             state.ifChanged(\.currentEdit.drawings.blurredMaskPaths) { paths in
