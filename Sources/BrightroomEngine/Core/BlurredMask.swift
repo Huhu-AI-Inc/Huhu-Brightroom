@@ -118,7 +118,7 @@ public struct BlurredMask: GraphicsDrawing {
   public static func blur(image: CIImage) -> CIImage? {
     func radius(_ imageExtent: CGRect) -> Double {
       let v = Double(sqrt(pow(imageExtent.width, 2) + pow(imageExtent.height, 2)))
-      return v / 20 // ?
+      return 5 // ?
     }
 
     // let min: Double = 0
@@ -126,7 +126,9 @@ public struct BlurredMask: GraphicsDrawing {
     let value: Double = 40
 
     let _radius = radius(image.extent) * value / max
-
+    
+    let grayColor = CIColor(red: 0.5, green: 0.5, blue: 0.5)  // This represents a middle gray. Adjust as needed.
+      
     let outputImage = image
       .clamped(to: image.extent)
       .applyingFilter(
@@ -135,6 +137,11 @@ public struct BlurredMask: GraphicsDrawing {
           "inputRadius": _radius,
         ]
       )
+      .applyingFilter("CIColorMonochrome", parameters: [
+          "inputColor": grayColor,
+          "inputIntensity": 1.0
+      ])
+      
       .cropped(to: image.extent)
       
     return outputImage

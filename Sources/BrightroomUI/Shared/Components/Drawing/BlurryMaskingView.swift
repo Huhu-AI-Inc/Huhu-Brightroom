@@ -189,7 +189,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           return
         }
         
-        currentBrush = .init(color: .lightGray, pixelSize: pixelSize)
+        currentBrush = .init(color: .black, pixelSize: pixelSize)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: path)
         canvasView.previewDrawnPath = drawnPath
@@ -318,8 +318,8 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
             
               state.ifChanged(\.editingPreviewImage) { image in
                   self.backdropImageView.display(image: image)
-//              self.blurryImageView.display(image: BlurredMask.blur(image: image))
-                  self.blurryImageView.display(image: self.baseImage)
+                  self.blurryImageView.display(image: BlurredMask.blur(image: image))
+//                  self.blurryImageView.display(image: self.baseImage)
                   
             }
             
