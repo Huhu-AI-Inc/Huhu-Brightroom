@@ -175,6 +175,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
       blurryImageView.isUserInteractionEnabled = false
       blurryImageView.contentMode = .scaleAspectFit
       blurryImageView.mask = canvasView
+      blurryImageView.backgroundColor = .black
       clipsToBounds = true
       
     }
