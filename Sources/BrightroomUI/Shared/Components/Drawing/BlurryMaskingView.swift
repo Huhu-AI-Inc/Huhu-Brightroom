@@ -302,7 +302,8 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
             
             state.ifChanged(\.editingPreviewImage) { image in
               self.backdropImageView.display(image: image)
-              self.blurryImageView.display(image: BlurredMask.blur(image: image))
+//              self.blurryImageView.display(image: BlurredMask.blur(image: image))
+                self.blurryImageView.display(image: image)
             }
             
             state.ifChanged(\.currentEdit.drawings.blurredMaskPaths) { paths in
