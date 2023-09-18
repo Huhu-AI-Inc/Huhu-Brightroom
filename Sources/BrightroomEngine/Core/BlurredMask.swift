@@ -128,15 +128,16 @@ public struct BlurredMask: GraphicsDrawing {
     let _radius = radius(image.extent) * value / max
 
     let outputImage = image
-      .clamped(to: image.extent)
-      .applyingFilter(
-        "CIGaussianBlur",
-        parameters: [
-          "inputRadius": _radius,
-        ]
-      )
-      .cropped(to: image.extent)
-
+//      .clamped(to: image.extent)
+//      .applyingFilter(
+//        "CIGaussianBlur",
+//        parameters: [
+//          "inputRadius": _radius,
+//        ]
+//      )
+//      .cropped(to: image.extent)
+      
+      let outputImage = CIImage(color: .gray)
     return outputImage
   }
 }
