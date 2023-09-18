@@ -149,7 +149,7 @@ public struct BlurredMask: GraphicsDrawing {
     
     public static func fakeMask(image: CIImage) -> CIImage? {
         
-        return generateGrayImage(width: image.extent.width, height: image.extent.height, grayValue: 0.9)
+        return generateGrayImage(width: image.extent.width, height: image.extent.height, grayValue: 0.5)
     }
     
     
