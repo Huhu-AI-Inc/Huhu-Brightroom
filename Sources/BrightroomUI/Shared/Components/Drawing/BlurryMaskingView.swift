@@ -228,11 +228,11 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
     .store(in: &subscriptions)
     
-    defaultAppearance: do {
-      setLoadingOverlay(factory: {
-          LoadingBlurryOverlayView(effect: UIBlurEffect(style: .dark), activityIndicatorStyle: .large)
-      })
-    }
+//    defaultAppearance: do {
+//      setLoadingOverlay(factory: {
+//          LoadingBlurryOverlayView(effect: UIBlurEffect(style: .dark), activityIndicatorStyle: .large)
+//      })
+//    }
   }
   
   override public func willMove(toSuperview newSuperview: UIView?) {
