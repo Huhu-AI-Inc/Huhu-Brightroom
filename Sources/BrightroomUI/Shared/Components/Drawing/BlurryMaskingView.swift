@@ -152,7 +152,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     super.init(frame: .zero)
     
     setUp: do {
-      backgroundColor = .clear
+      backgroundColor = .black
       
       addSubview(scrollView)
       
