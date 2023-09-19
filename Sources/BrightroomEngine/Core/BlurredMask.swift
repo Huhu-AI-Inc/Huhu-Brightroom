@@ -127,8 +127,7 @@ public struct BlurredMask: GraphicsDrawing {
 
     let _radius = radius(image.extent) * value / max
     
-//    let grayColor = CIColor(red: 0.5, green: 0.5, blue: 0.5)  // This represents a middle gray. Adjust as needed.
-      let grayColor = CIColor.white
+    let grayColor = CIColor(red: 0.5, green: 0.5, blue: 0.5)  // This represents a middle gray. Adjust as needed.
       
     let outputImage = image
       .clamped(to: image.extent)
