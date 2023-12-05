@@ -75,11 +75,11 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
     func brushPixelSize() -> CGFloat? {
       print("WSI check brushPixelSize")
-//      guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
-//        return nil
-//      }
+      guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
+        return nil
+      }
       
-//      let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
+      let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
       
       switch brushSize {
       case let .point(points):
