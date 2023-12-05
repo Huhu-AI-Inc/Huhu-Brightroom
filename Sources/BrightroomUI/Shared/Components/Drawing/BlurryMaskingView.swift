@@ -35,7 +35,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
     fileprivate(set) var proposedCrop: EditingCrop?
     
-    fileprivate(set) var brushSize: CanvasView.BrushSize = .point(20)
+    fileprivate(set) var brushSize: CanvasView.BrushSize = .pixel(20)
     
     fileprivate let contentInset: UIEdgeInsets = .zero
     
@@ -187,7 +187,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           assertionFailure("It seems currently loading state.")
           return
         }
-        
+        print("WSI check pixelSize: \(pixelSize)")
         currentBrush = .init(color: .black, pixelSize: pixelSize)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: path)
