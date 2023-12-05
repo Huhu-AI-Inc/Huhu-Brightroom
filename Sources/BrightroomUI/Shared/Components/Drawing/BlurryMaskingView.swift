@@ -35,7 +35,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
     fileprivate(set) var proposedCrop: EditingCrop?
     
-    public var brushSize: CanvasView.BrushSize = .point(20)
+    fileprivate(set) var brushSize: CanvasView.BrushSize = .point(20)
     
     fileprivate let contentInset: UIEdgeInsets = .zero
     
