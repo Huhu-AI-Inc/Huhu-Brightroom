@@ -28,8 +28,6 @@ import Verge
 
 public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDelegate {
     
-    public var currentBrushSize: CGFloat = 20
-    
   private struct State: Equatable {
     fileprivate(set) var frame: CGRect = .zero
     fileprivate(set) var bounds: CGRect = .zero
@@ -74,17 +72,20 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
     
     func brushPixelSize() -> CGFloat? {
-      print("WSI check brushPixelSize")
+        print("WSI check brushPixelSize")
       guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
+          print("WSI check brushPixelSize error!")
         return nil
       }
-      
+        print("WSI check brushPixelSize line1")
       let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
-      
+        print("WSI check brushPixelSize line2")
       switch brushSize {
       case let .point(points):
+          print("WSI check updated points: \(points) / \(min)")
         return points / min
       case let .pixel(pixels):
+          print("WSI check updated pixel: \(pixels)")
         return pixels
       }
     }
@@ -187,13 +188,14 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     drawingView.handlers = drawingView.handlers&>.modify {
       $0.willBeginPan = { [unowned self] path in
         
-//        guard let pixelSize = store.state.primitive.brushPixelSize() else {
-//          assertionFailure("It seems currently loading state.")
-//          return
-//        }
-          print("WSI check pixelSize: \(self.currentBrushSize)")
+        guard let pixelSize = store.state.primitive.brushPixelSize() else {
+          assertionFailure("It seems currently loading state.")
+          return
+        }
+          print("WSI check pixelSize: \(pixelSize)")
+         
           
-          currentBrush = .init(color: .black, pixelSize: self.currentBrushSize)
+          currentBrush = .init(color: .black, pixelSize: pixelSize)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: path)
         canvasView.previewDrawnPath = drawnPath
