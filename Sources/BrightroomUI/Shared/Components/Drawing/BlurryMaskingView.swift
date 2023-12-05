@@ -191,9 +191,9 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
 //          assertionFailure("It seems currently loading state.")
 //          return
 //        }
-        print("WSI check pixelSize: \(currentBrushSize)")
+          print("WSI check pixelSize: \(self.currentBrushSize)")
           
-          currentBrush = .init(color: .black, pixelSize: currentBrushSize)
+          currentBrush = .init(color: .black, pixelSize: self.currentBrushSize)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: path)
         canvasView.previewDrawnPath = drawnPath
