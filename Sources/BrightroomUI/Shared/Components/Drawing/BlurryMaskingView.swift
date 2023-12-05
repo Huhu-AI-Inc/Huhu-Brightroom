@@ -27,10 +27,13 @@ import BrightroomEngine
 import Verge
 
 public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDelegate {
+    public var currentBrushSize: CanvasView.BrushSize = .pixel(20)
+    
   private struct State: Equatable {
     fileprivate(set) var frame: CGRect = .zero
     fileprivate(set) var bounds: CGRect = .zero
     
+
     fileprivate var hasLoaded = false
     
     fileprivate(set) var proposedCrop: EditingCrop?
@@ -70,7 +73,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
     
     func brushPixelSize() -> CGFloat? {
-      
+      print("WSI check brushPixelSize")
       guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
         return nil
       }
@@ -145,7 +148,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
     self.editingStack = editingStack
     store = .init(
-      initialState: .init(),
+        initialState: .init(),
       logger: nil
     )
             
@@ -183,12 +186,13 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     drawingView.handlers = drawingView.handlers&>.modify {
       $0.willBeginPan = { [unowned self] path in
         
-        guard let pixelSize = store.state.primitive.brushPixelSize() else {
-          assertionFailure("It seems currently loading state.")
-          return
-        }
+//        guard let pixelSize = store.state.primitive.brushPixelSize() else {
+//          assertionFailure("It seems currently loading state.")
+//          return
+//        }
+          let pixelSize = currentBrush?.pixelSize
         print("WSI check pixelSize: \(pixelSize)")
-        currentBrush = .init(color: .black, pixelSize: pixelSize)
+          currentBrush = .init(color: .black, pixelSize: pixelSize ?? 20)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: path)
         canvasView.previewDrawnPath = drawnPath
@@ -341,6 +345,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     store.commit {
       $0.brushSize = size
     }
+      self.currentBrushSize = size
   }
   
   private func updateLoadingOverlay(displays: Bool) {
