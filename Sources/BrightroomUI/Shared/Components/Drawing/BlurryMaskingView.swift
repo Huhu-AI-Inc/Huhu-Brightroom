@@ -27,7 +27,8 @@ import BrightroomEngine
 import Verge
 
 public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDelegate {
-    public var currentBrushSize: CanvasView.BrushSize = .pixel(20)
+    
+    public var currentBrushSize: CGFloat = 20
     
   private struct State: Equatable {
     fileprivate(set) var frame: CGRect = .zero
@@ -74,11 +75,11 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
     func brushPixelSize() -> CGFloat? {
       print("WSI check brushPixelSize")
-      guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
-        return nil
-      }
+//      guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
+//        return nil
+//      }
       
-      let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
+//      let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
       
       switch brushSize {
       case let .point(points):
@@ -190,9 +191,9 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
 //          assertionFailure("It seems currently loading state.")
 //          return
 //        }
-          let pixelSize = currentBrush?.pixelSize
-        print("WSI check pixelSize: \(pixelSize)")
-          currentBrush = .init(color: .black, pixelSize: pixelSize ?? 20)
+        print("WSI check pixelSize: \(currentBrushSize)")
+          
+          currentBrush = .init(color: .black, pixelSize: currentBrushSize)
         
         let drawnPath = DrawnPath(brush: currentBrush!, path: path)
         canvasView.previewDrawnPath = drawnPath
@@ -345,7 +346,6 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     store.commit {
       $0.brushSize = size
     }
-      self.currentBrushSize = size
   }
   
   private func updateLoadingOverlay(displays: Bool) {
