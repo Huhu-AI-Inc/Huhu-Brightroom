@@ -28,47 +28,45 @@ import Verge
 
 public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDelegate {
     
-  private struct State: Equatable {
-    fileprivate(set) var frame: CGRect = .zero
-    fileprivate(set) var bounds: CGRect = .zero
+    private struct State: Equatable {
+        fileprivate(set) var frame: CGRect = .zero
+        fileprivate(set) var bounds: CGRect = .zero
+        fileprivate var hasLoaded = false
     
-
-    fileprivate var hasLoaded = false
+        fileprivate(set) var proposedCrop: EditingCrop?
     
-    fileprivate(set) var proposedCrop: EditingCrop?
+        fileprivate(set) var brushSize: CanvasView.BrushSize = .point(20)
     
-    var brushSize: CanvasView.BrushSize = .pixel(20)
+        fileprivate let contentInset: UIEdgeInsets = .zero
     
-    fileprivate let contentInset: UIEdgeInsets = .zero
-    
-    func scrollViewFrame() -> CGRect? {
+        func scrollViewFrame() -> CGRect? {
       
-      guard let proposedCrop = proposedCrop else {
-        return nil
-      }
+            guard let proposedCrop = proposedCrop else {
+                return nil
+            }
       
-      let bounds = self.bounds.inset(by: contentInset)
+          let bounds = self.bounds.inset(by: contentInset)
+          
+          let size: CGSize
+          let aspectRatio = PixelAspectRatio(proposedCrop.cropExtent.size)
+          switch proposedCrop.rotation {
+              case .angle_0:
+                size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
+              case .angle_90:
+                size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
+              case .angle_180:
+                size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
+              case .angle_270:
+                size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
+          }
       
-      let size: CGSize
-      let aspectRatio = PixelAspectRatio(proposedCrop.cropExtent.size)
-      switch proposedCrop.rotation {
-      case .angle_0:
-        size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
-      case .angle_90:
-        size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
-      case .angle_180:
-        size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
-      case .angle_270:
-        size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
-      }
-      
-      return .init(
-        origin: .init(
-          x: contentInset.left + ((bounds.width - size.width) / 2) /* centering offset */,
-          y: contentInset.top + ((bounds.height - size.height) / 2) /* centering offset */
-        ),
-        size: size
-      )
+          return .init(
+            origin: .init(
+              x: contentInset.left + ((bounds.width - size.width) / 2) /* centering offset */,
+              y: contentInset.top + ((bounds.height - size.height) / 2) /* centering offset */
+            ),
+            size: size
+          )
     }
     
     func brushPixelSize() -> CGFloat? {
@@ -186,16 +184,23 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           $0.willBeginPan = { [weak self] path in
               guard let self = self else { return }
               
-              guard let pixelSize = self.store.state.primitive.brushPixelSize() else {
-                  assertionFailure("It seems currently loading state.")
-                  return
+//              guard let pixelSize = self.store.state.primitive.brushSize else {
+//                  assertionFailure("It seems currently loading state.")
+//                  return
+//              }
+              var size = 20.0
+              switch self.store.state.primitive.brushSize {
+              case .pixel(let pixel_size):
+                  size = pixel_size
+                  break
+              case .point(let point_size): 
+                  size = point_size
+                  break
               }
               
-              
-              print("WSI check pixelSize: \(pixelSize) \(self.store.state.brushSize)")
+              print("WSI check pixelSize: \(size) \(self.store.state.brushSize)")
              
-              
-              currentBrush = .init(color: .black, pixelSize: pixelSize)
+              currentBrush = .init(color: .black, pixelSize: size)
             
               let drawnPath = DrawnPath(brush: currentBrush!, path: path)
               canvasView.previewDrawnPath = drawnPath
@@ -356,6 +361,18 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
       print("WSI test \(store.state.primitive.brushSize)")
   }
   
+//    public func setBrushSize(_ brushSize: CGFloat) {
+//        print("WSI setBrushSize called \(brushSize)")
+//      
+//        store.commit {
+//            $0.brushSize = .point(brushSize)
+//            print("WSI check $0.brushSize: \($0.brushSize)")
+//        }
+//        print("WSI test \(store.primitiveState.brushSize)")
+//        print("WSI test \(store.state.brushSize)")
+//        print("WSI test \(store.state.primitive.brushSize)")
+//    }
+    
   private func updateLoadingOverlay(displays: Bool) {
     
     if displays, let factory = self.loadingOverlayFactory {
