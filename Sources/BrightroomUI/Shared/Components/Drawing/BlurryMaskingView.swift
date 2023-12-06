@@ -37,7 +37,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
     fileprivate(set) var proposedCrop: EditingCrop?
     
-    fileprivate(set) var brushSize: CanvasView.BrushSize = .pixel(20)
+    var brushSize: CanvasView.BrushSize = .pixel(20)
     
     fileprivate let contentInset: UIEdgeInsets = .zero
     
@@ -72,7 +72,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
     
     func brushPixelSize() -> CGFloat? {
-        print("WSI check brushPixelSize")
+        print("WSI check brushPixelSize \(brushSize)")
       guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
           print("WSI check brushPixelSize error!")
         return nil
