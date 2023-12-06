@@ -345,9 +345,11 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   }
     
   public func setBrushSize(_ size: CanvasView.BrushSize) {
-    store.commit {
-      $0.brushSize = size
-    }
+      print("WSI setBrushSize called \(size)")
+      store.commit {
+        $0.brushSize = size
+          print("WSI check $0.brushSize: \($0.brushSize)")
+      }
   }
   
   private func updateLoadingOverlay(displays: Bool) {
