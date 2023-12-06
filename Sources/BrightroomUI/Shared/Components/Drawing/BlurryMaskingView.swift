@@ -183,34 +183,35 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
     
     drawingView.handlers = drawingView.handlers&>.modify {
-      $0.willBeginPan = { [unowned self] path in
-        
-        guard let pixelSize = store.state.primitive.brushPixelSize() else {
-          assertionFailure("It seems currently loading state.")
-          return
-        }
-          
-          
-          print("WSI check pixelSize: \(pixelSize) \(store.state.brushSize)")
-         
-          
-          currentBrush = .init(color: .black, pixelSize: pixelSize)
-        
-        let drawnPath = DrawnPath(brush: currentBrush!, path: path)
-        canvasView.previewDrawnPath = drawnPath
-      }
-      $0.panning = { [unowned self] path in
-        canvasView.updatePreviewDrawing()
-      }
-      $0.didFinishPan = { [unowned self] path in
-        canvasView.updatePreviewDrawing()
-        let _path = (path.copy() as! UIBezierPath)
-        
-        let drawnPath = DrawnPath(brush: currentBrush!, path: _path)
-        canvasView.previewDrawnPath = nil
-        editingStack.append(blurringMaskPaths: CollectionOfOne(drawnPath))
-        currentBrush = nil
-      }
+          $0.willBeginPan = { [weak self] path in
+              guard let self = self else { return }
+              
+              guard let pixelSize = self.store.state.primitive.brushPixelSize() else {
+                  assertionFailure("It seems currently loading state.")
+                  return
+              }
+              
+              
+              print("WSI check pixelSize: \(pixelSize) \(self.store.state.brushSize)")
+             
+              
+              currentBrush = .init(color: .black, pixelSize: pixelSize)
+            
+              let drawnPath = DrawnPath(brush: currentBrush!, path: path)
+              canvasView.previewDrawnPath = drawnPath
+          }
+          $0.panning = { [unowned self] path in
+            canvasView.updatePreviewDrawing()
+          }
+          $0.didFinishPan = { [unowned self] path in
+            canvasView.updatePreviewDrawing()
+            let _path = (path.copy() as! UIBezierPath)
+            
+            let drawnPath = DrawnPath(brush: currentBrush!, path: _path)
+            canvasView.previewDrawnPath = nil
+            editingStack.append(blurringMaskPaths: CollectionOfOne(drawnPath))
+            currentBrush = nil
+          }
     }
     
     editingStack.sinkState { [weak self] (state: Changes<EditingStack.State>) in
@@ -491,3 +492,4 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     adjustFrameToCenterOnZooming()
   }
 }
+

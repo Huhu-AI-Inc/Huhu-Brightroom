@@ -90,7 +90,7 @@ public final class CanvasView: PixelEditorCodeBasedView {
   }
   
   private static func makeShapeLayer(for brush: OvalBrush) -> CAShapeLayer {
-    print("WSI Canvas makeShapeLayer")
+      print("WSI Canvas makeShapeLayer brush size \(brush.pixelSize)")
     let layer = CAShapeLayer()
         
     layer.lineWidth = brush.pixelSize
