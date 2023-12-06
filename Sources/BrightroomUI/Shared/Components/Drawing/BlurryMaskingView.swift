@@ -149,10 +149,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   public init(editingStack: EditingStack) {
     
     self.editingStack = editingStack
-    store = .init(
-        initialState: .init(),
-      logger: nil
-    )
+      store = .init(initialState: State(brushSize: .pixel(20)), logger: nil)
             
     super.init(frame: .zero)
     
@@ -192,6 +189,8 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           assertionFailure("It seems currently loading state.")
           return
         }
+          
+          
           print("WSI check pixelSize: \(pixelSize)")
          
           
