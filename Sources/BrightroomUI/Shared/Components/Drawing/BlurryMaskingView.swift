@@ -145,10 +145,9 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   public init(editingStack: EditingStack) {
     
-    self.editingStack = editingStack
-      store = .init(initialState: State(brushSize: .pixel(20)), logger: nil)
-            
-    super.init(frame: .zero)
+      self.editingStack = editingStack
+      self.store = .init(initialState: State(brushSize: .pixel(20)), logger: nil)
+      super.init(frame: .zero)
     
   setUp: do {
       backgroundColor = .black
@@ -182,30 +181,26 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     drawingView.handlers = drawingView.handlers&>.modify {
           $0.willBeginPan = { [weak self] path in
               guard let self = self else { return }
+
+              print("WSI check HERE1: \(self.store.state.root.brushPixelSize())")
+              print("WSI check HERE2: \(self.store.state.brushSize)")
               
-//              guard let pixelSize = self.store.state.primitive.brushSize else {
-//                  assertionFailure("It seems currently loading state.")
-//                  return
-//              }
-//              print("WSI check HERE1: \(self.store.state.primitive.brushSize)")
-//              print("WSI check HERE2: \(self.store.state.brushSize)")
-              
-//              let size = self.store.state.primitive.brushPixelSize()
+              let updatedSize = self.store.state.root.brushPixelSize()
               
 
-              var updatedSize  = 20.0
-              
-              switch self.currentBrushSize {
-              case let .point(points):
-                  print("WSI check updated points: \(points)")
-                  updatedSize = points
-              case let .pixel(pixels):
-                  print("WSI check updated pixel: \(pixels)")
-                  updatedSize = pixels
-              }
-              
+//              var updatedSize  = 20.0
+//              print("WSI check \(self.currentBrushSize)")
+//              switch self.currentBrushSize {
+//              case let .point(points):
+//                  print("WSI check updated points: \(points)")
+//                  updatedSize = points
+//              case let .pixel(pixels):
+//                  print("WSI check updated pixel: \(pixels)")
+//                  updatedSize = pixels
+//              }
+//              
               print("WSI check pixelSize: \(updatedSize)")
-              currentBrush = .init(color: .black, pixelSize: updatedSize)
+              currentBrush = .init(color: .black, pixelSize: 20.0)
             
               let drawnPath = DrawnPath(brush: currentBrush!, path: path)
               canvasView.previewDrawnPath = drawnPath
