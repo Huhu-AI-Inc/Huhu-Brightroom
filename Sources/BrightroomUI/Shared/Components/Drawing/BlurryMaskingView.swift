@@ -29,13 +29,15 @@ import Verge
 public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDelegate {
     
     private struct State: Equatable {
+        public var editingState: Changes<EditingStack.State>
+        
         fileprivate(set) var frame: CGRect = .zero
         fileprivate(set) var bounds: CGRect = .zero
         fileprivate var hasLoaded = false
     
         fileprivate(set) var proposedCrop: EditingCrop?
     
-        var brushSize: CanvasView.BrushSize = .point(20)
+        public fileprivate(set) var brushSize: CanvasView.BrushSize = .point(20)
     
         fileprivate let contentInset: UIEdgeInsets = .zero
         
@@ -131,7 +133,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
    
   private var hasSetupScrollViewCompleted = false
   
-  private let store: UIStateStore<State, Never>
+  private let store: Store<State, Never>
   
   private var currentBrush: OvalBrush?
   
@@ -146,7 +148,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   public init(editingStack: EditingStack) {
     
       self.editingStack = editingStack
-      self.store = .init(initialState: State(brushSize: .pixel(20)), logger: nil)
+      self.store = .init(initialState: .init(editingState: editingStack.state))
       super.init(frame: .zero)
     
   setUp: do {
@@ -182,23 +184,21 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           $0.willBeginPan = { [weak self] path in
               guard let self = self else { return }
 
-              print("WSI check HERE1: \(self.store.state.root.brushPixelSize())")
-              print("WSI check HERE2: \(self.store.state.brushSize)")
+              print("WSI check HERE1: \(self.store.state.primitive.brushSize)")
+              print("WSI check HERE2: \(self.store.primitiveState.brushPixelSize())")
+              print("WSI check HERE3: \(self.store.state.brushSize)")
               
-              let updatedSize = self.store.state.root.brushPixelSize()
+              var updatedSize = 20.0
               
-
-//              var updatedSize  = 20.0
-//              print("WSI check \(self.currentBrushSize)")
-//              switch self.currentBrushSize {
-//              case let .point(points):
-//                  print("WSI check updated points: \(points)")
-//                  updatedSize = points
-//              case let .pixel(pixels):
-//                  print("WSI check updated pixel: \(pixels)")
-//                  updatedSize = pixels
-//              }
-//              
+              switch self.store.state.primitive.brushSize {
+              case let .point(points):
+                  print("WSI check updated points: \(points)")
+                  updatedSize = points
+              case let .pixel(pixels):
+                  print("WSI check updated pixel: \(pixels)")
+                  updatedSize = pixels
+              }
+              
               print("WSI check pixelSize: \(updatedSize)")
               currentBrush = .init(color: .black, pixelSize: 20.0)
             
