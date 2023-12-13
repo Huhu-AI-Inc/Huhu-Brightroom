@@ -35,7 +35,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
         fileprivate(set) var proposedCrop: EditingCrop?
     
-        fileprivate(set) var brushSize: CanvasView.BrushSize = .point(20)
+        var brushSize: CanvasView.BrushSize = .point(20)
     
         fileprivate let contentInset: UIEdgeInsets = .zero
     
@@ -188,6 +188,9 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
 //                  assertionFailure("It seems currently loading state.")
 //                  return
 //              }
+              print("WSI check HERE1: \(self.store.state.primitive.brushSize)")
+              print("WSI check HERE2: \(self.store.state.brushSize)")
+              
               var size = 20.0
               switch self.store.state.primitive.brushSize {
               case .pixel(let pixel_size):
