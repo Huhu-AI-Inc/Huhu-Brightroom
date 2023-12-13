@@ -38,7 +38,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
         var brushSize: CanvasView.BrushSize = .point(20)
     
         fileprivate let contentInset: UIEdgeInsets = .zero
-    
+        
         func scrollViewFrame() -> CGRect? {
       
             guard let proposedCrop = proposedCrop else {
@@ -140,6 +140,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   private var isBinding = false
   
+  public var currentBrushSize: CanvasView.BrushSize = .point(20)
   // MARK: - Initializers
   
   public init(editingStack: EditingStack) {
@@ -186,14 +187,25 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
 //                  assertionFailure("It seems currently loading state.")
 //                  return
 //              }
-              print("WSI check HERE1: \(self.store.state.primitive.brushSize)")
-              print("WSI check HERE2: \(self.store.state.brushSize)")
+//              print("WSI check HERE1: \(self.store.state.primitive.brushSize)")
+//              print("WSI check HERE2: \(self.store.state.brushSize)")
               
-              let size = self.store.state.primitive.brushPixelSize()
+//              let size = self.store.state.primitive.brushPixelSize()
               
-              print("WSI check pixelSize: \(size)")
-             
-              currentBrush = .init(color: .black, pixelSize: size ?? 20.0)
+
+              var updatedSize  = 20.0
+              
+              switch self.currentBrushSize {
+              case let .point(points):
+                  print("WSI check updated points: \(points)")
+                  updatedSize = points
+              case let .pixel(pixels):
+                  print("WSI check updated pixel: \(pixels)")
+                  updatedSize = pixels
+              }
+              
+              print("WSI check pixelSize: \(updatedSize)")
+              currentBrush = .init(color: .black, pixelSize: updatedSize)
             
               let drawnPath = DrawnPath(brush: currentBrush!, path: path)
               canvasView.previewDrawnPath = drawnPath
@@ -337,22 +349,23 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
   }
   
-  public func setLoadingOverlay(factory: (() -> UIView)?) {
-    _pixeleditor_ensureMainThread()
-    loadingOverlayFactory = factory
-  }
-    
-  public func setBrushSize(_ size: CanvasView.BrushSize) {
-      print("WSI setBrushSize called \(size)")
-    
-      self.store.commit {
-        $0.brushSize = size
-          print("WSI check $0.brushSize: \($0.brushSize)")
+      public func setLoadingOverlay(factory: (() -> UIView)?) {
+        _pixeleditor_ensureMainThread()
+        loadingOverlayFactory = factory
       }
-      print("WSI test \(self.store.primitiveState.brushSize)")
-      print("WSI test \(self.store.state.brushSize)")
-      print("WSI test \(self.store.state.primitive.brushSize)")
-  }
+    
+      public func setBrushSize(_ size: CanvasView.BrushSize) {
+          print("WSI setBrushSize called \(size)")
+        
+          self.store.commit {
+            $0.brushSize = size
+            print("WSI check $0.brushSize: \($0.brushSize)")
+          }
+          
+          print("WSI test \(self.store.primitiveState.brushSize)")
+          print("WSI test \(self.store.state.brushSize)")
+          print("WSI test \(self.store.state.primitive.brushSize)")
+      }
   
 //    public func setBrushSize(_ brushSize: CGFloat) {
 //        print("WSI setBrushSize called \(brushSize)")
@@ -458,48 +471,48 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
   }
   
-  override public func layoutSubviews() {
-    super.layoutSubviews()
-    
-    store.commit {
-      if $0.frame != frame {
-        $0.frame = frame
+      override public func layoutSubviews() {
+        super.layoutSubviews()
+        
+        store.commit {
+          if $0.frame != frame {
+            $0.frame = frame
+          }
+          if $0.bounds != bounds {
+            $0.bounds = bounds
+          }
+        }
+        
       }
-      if $0.bounds != bounds {
-        $0.bounds = bounds
-      }
-    }
-    
-  }
   
   // MARK: UIScrollViewDelegate
   
-  public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-    return containerView
-  }
+      public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return containerView
+      }
   
-  public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-    func adjustFrameToCenterOnZooming() {
-      var frameToCenter = containerView.frame
-      
-      // center horizontally
-      if frameToCenter.size.width < scrollView.bounds.width {
-        frameToCenter.origin.x = (scrollView.bounds.width - frameToCenter.size.width) / 2
-      } else {
-        frameToCenter.origin.x = 0
+      public func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        func adjustFrameToCenterOnZooming() {
+          var frameToCenter = containerView.frame
+          
+          // center horizontally
+          if frameToCenter.size.width < scrollView.bounds.width {
+            frameToCenter.origin.x = (scrollView.bounds.width - frameToCenter.size.width) / 2
+          } else {
+            frameToCenter.origin.x = 0
+          }
+          
+          // center vertically
+          if frameToCenter.size.height < scrollView.bounds.height {
+            frameToCenter.origin.y = (scrollView.bounds.height - frameToCenter.size.height) / 2
+          } else {
+            frameToCenter.origin.y = 0
+          }
+          
+          containerView.frame = frameToCenter
+        }
+        
+        adjustFrameToCenterOnZooming()
       }
-      
-      // center vertically
-      if frameToCenter.size.height < scrollView.bounds.height {
-        frameToCenter.origin.y = (scrollView.bounds.height - frameToCenter.size.height) / 2
-      } else {
-        frameToCenter.origin.y = 0
-      }
-      
-      containerView.frame = frameToCenter
-    }
-    
-    adjustFrameToCenterOnZooming()
-  }
 }
 
