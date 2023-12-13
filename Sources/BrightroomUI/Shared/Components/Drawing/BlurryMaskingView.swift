@@ -45,48 +45,46 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
                 return nil
             }
       
-          let bounds = self.bounds.inset(by: contentInset)
+            let bounds = self.bounds.inset(by: contentInset)
           
-          let size: CGSize
-          let aspectRatio = PixelAspectRatio(proposedCrop.cropExtent.size)
-          switch proposedCrop.rotation {
-              case .angle_0:
-                size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
-              case .angle_90:
-                size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
-              case .angle_180:
-                size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
-              case .angle_270:
-                size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
-          }
+            let size: CGSize
+            let aspectRatio = PixelAspectRatio(proposedCrop.cropExtent.size)
+            switch proposedCrop.rotation {
+                case .angle_0:
+                    size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
+                case .angle_90:
+                    size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
+                case .angle_180:
+                    size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
+                case .angle_270:
+                    size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
+            }
       
-          return .init(
-            origin: .init(
-              x: contentInset.left + ((bounds.width - size.width) / 2) /* centering offset */,
-              y: contentInset.top + ((bounds.height - size.height) / 2) /* centering offset */
-            ),
-            size: size
-          )
-    }
+              return .init(
+                origin: .init(
+                  x: contentInset.left + ((bounds.width - size.width) / 2) /* centering offset */,
+                  y: contentInset.top + ((bounds.height - size.height) / 2) /* centering offset */
+                ), size: size)
+        }
     
-    func brushPixelSize() -> CGFloat? {
-        print("WSI check brushPixelSize \(brushSize)")
-      guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
-          print("WSI check brushPixelSize error!")
-        return nil
-      }
-        print("WSI check brushPixelSize line1")
-      let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
-        print("WSI check brushPixelSize line2")
-      switch brushSize {
-      case let .point(points):
-          print("WSI check updated points: \(points) / \(min)")
-        return points / min
-      case let .pixel(pixels):
-          print("WSI check updated pixel: \(pixels)")
-        return pixels
-      }
-    }
+        func brushPixelSize() -> CGFloat? {
+            print("WSI check brushPixelSize \(brushSize)")
+          guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
+              print("WSI check brushPixelSize error!")
+            return nil
+          }
+            print("WSI check brushPixelSize line1")
+          let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
+            print("WSI check brushPixelSize line2 \(min) \(size)")
+          switch brushSize {
+          case let .point(points):
+              print("WSI check updated points: \(points) / \(min)")
+            return points / min
+          case let .pixel(pixels):
+              print("WSI check updated pixel: \(pixels)")
+            return pixels
+          }
+        }
   }
   
   private final class ContainerView: PixelEditorCodeBasedView {
@@ -191,19 +189,11 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
               print("WSI check HERE1: \(self.store.state.primitive.brushSize)")
               print("WSI check HERE2: \(self.store.state.brushSize)")
               
-              var size = 20.0
-              switch self.store.state.primitive.brushSize {
-              case .pixel(let pixel_size):
-                  size = pixel_size
-                  break
-              case .point(let point_size): 
-                  size = point_size
-                  break
-              }
+              let size = self.store.state.primitive.brushPixelSize()
               
-              print("WSI check pixelSize: \(size) \(self.store.state.brushSize)")
+              print("WSI check pixelSize: \(size)")
              
-              currentBrush = .init(color: .black, pixelSize: size)
+              currentBrush = .init(color: .black, pixelSize: size ?? 20.0)
             
               let drawnPath = DrawnPath(brush: currentBrush!, path: path)
               canvasView.previewDrawnPath = drawnPath
@@ -355,13 +345,13 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   public func setBrushSize(_ size: CanvasView.BrushSize) {
       print("WSI setBrushSize called \(size)")
     
-      store.commit {
+      self.store.commit {
         $0.brushSize = size
           print("WSI check $0.brushSize: \($0.brushSize)")
       }
-      print("WSI test \(store.primitiveState.brushSize)")
-      print("WSI test \(store.state.brushSize)")
-      print("WSI test \(store.state.primitive.brushSize)")
+      print("WSI test \(self.store.primitiveState.brushSize)")
+      print("WSI test \(self.store.state.brushSize)")
+      print("WSI test \(self.store.state.primitive.brushSize)")
   }
   
 //    public func setBrushSize(_ brushSize: CGFloat) {
