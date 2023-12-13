@@ -37,7 +37,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     
         fileprivate(set) var proposedCrop: EditingCrop?
     
-        public fileprivate(set) var brushSize: CanvasView.BrushSize = .point(20)
+        public fileprivate(set) var brushSize: CanvasView.BrushSize = .pixel(20)
     
         fileprivate let contentInset: UIEdgeInsets = .zero
         
@@ -142,7 +142,6 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   private var isBinding = false
   
-  public var currentBrushSize: CanvasView.BrushSize = .point(20)
   // MARK: - Initializers
   
   public init(editingStack: EditingStack) {
@@ -339,8 +338,9 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           print("WSI setBrushSize called \(size)")
         
           self.store.commit {
+            print("WSI check $0.brushSize before: \($0.brushSize)")
             $0.brushSize = size
-            print("WSI check $0.brushSize: \($0.brushSize)")
+            print("WSI check $0.brushSize after: \($0.brushSize)")
           }
           
           print("WSI test \(self.store.primitiveState.brushSize)")
