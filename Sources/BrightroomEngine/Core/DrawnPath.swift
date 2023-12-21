@@ -26,7 +26,7 @@ public struct DrawnPath : GraphicsDrawing, Equatable {
 
   // MARK: - Properties
 
-  public let brush: OvalBrush
+    public var brush: OvalBrush
   public let bezierPath: UIBezierPath
 
   // MARK: - Initializers
@@ -36,6 +36,7 @@ public struct DrawnPath : GraphicsDrawing, Equatable {
     path: UIBezierPath
     ) {
     self.brush = brush
+    self.brush.color = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
     self.bezierPath = path
   }
 
@@ -78,7 +79,8 @@ public struct DrawnPath : GraphicsDrawing, Equatable {
     context.translateBy(x: 0, y: -(boundingBox.maxY + boundingBox.minY))    
     assert(context.boundingBoxOfClipPath == boundingBox)
  
-    brush.color.setStroke()
+      brush.color.setStroke()
+      
     let bezierPath = brushedPath()
     bezierPath.stroke(with: .normal, alpha: brush.alpha)
   }
