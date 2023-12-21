@@ -149,7 +149,8 @@ public struct BlurredMask: GraphicsDrawing {
     
     public static func convertToWhite(image: CIImage) -> CIImage? {
         // Create a CIImage with a solid white color
-        let whiteImage = CIImage(color: CIColor.init(red: 0.8, green: 0.8, blue: 0.8, colorSpace: .displayP3)).cropped(to: image.extent)
+        let grayColor = CIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
+        let whiteImage = CIImage(color: grayColor).cropped(to: image.extent)
 
         // Use CISourceOverCompositing to overlay the white image over the original image
         let parameters: [String: Any] = [kCIInputBackgroundImageKey: image, kCIInputImageKey: whiteImage]
