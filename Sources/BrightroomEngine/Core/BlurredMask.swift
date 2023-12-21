@@ -137,10 +137,10 @@ public struct BlurredMask: GraphicsDrawing {
           "inputRadius": _radius,
         ]
       )
-      .applyingFilter("CIColorMonochrome", parameters: [
-          "inputColor": grayColor,
-          "inputIntensity": 1.0
-      ])
+//      .applyingFilter("CIColorMonochrome", parameters: [
+//          "inputColor": grayColor,
+//          "inputIntensity": 1.0
+//      ])
       
       .cropped(to: image.extent)
       
@@ -149,7 +149,7 @@ public struct BlurredMask: GraphicsDrawing {
     
     public static func fakeMask(image: CIImage) -> CIImage? {
         
-        return generateGrayImage(width: image.extent.width, height: image.extent.height, grayValue: 0.5)
+        return generateGrayImage(width: image.extent.width, height: image.extent.height, grayValue: 0.2)
     }
     
     
