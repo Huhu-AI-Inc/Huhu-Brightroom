@@ -144,26 +144,24 @@ public struct BlurredMask: GraphicsDrawing {
       .cropped(to: image.extent)
       
       
-      // Convert the CIImage with filters applied to CGImage
-         guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
-             return nil
-         }
-      
-      // Render the CGImage onto a white background
-         let renderer = UIGraphicsImageRenderer(size: outputImage.extent.size)
-         let imageWithWhiteBackground = renderer.image { ctx in
-             // Fill the context with white color
-             UIColor.init(red: 0.8, green: 0.8, blue: 0.8, alpha: 1).setFill()
-             ctx.fill(CGRect(origin: .zero, size: outputImage.extent.size))
-
-             // Draw the processed image on top of the white background
-             ctx.cgContext.draw(cgImage, in: CGRect(origin: .zero, size: outputImage.extent.size))
-         }
-
-      return imageWithWhiteBackground.ciImage
-      
-//    return outputImage
+    return convertToWhite(image: outputImage)
   }
+    
+    public static func convertToWhite(image: CIImage) -> CIImage? {
+        // Create a CIImage with a solid white color
+        let whiteImage = CIImage(color: CIColor.init(red: 0.8, green: 0.8, blue: 0.8, colorSpace: .displayP3)).cropped(to: image.extent)
+
+        // Use CISourceOverCompositing to overlay the white image over the original image
+        let parameters: [String: Any] = [kCIInputBackgroundImageKey: image, kCIInputImageKey: whiteImage]
+        guard let filter = CIFilter(name: "CISourceOverCompositing", parameters: parameters),
+              let outputImage = filter.outputImage else {
+            return nil
+        }
+
+        return outputImage
+    }
+    
+    
     
     public static func fakeMask(image: CIImage) -> CIImage? {
         
