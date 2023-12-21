@@ -117,10 +117,10 @@ public struct BlurredMask: GraphicsDrawing {
 
   public static func blur(image: CIImage) -> CIImage? {
     func radius(_ imageExtent: CGRect) -> Double {
-      let v = Double(sqrt(pow(imageExtent.width, 2) + pow(imageExtent.height, 2)))
+//      let v = Double(sqrt(pow(imageExtent.width, 2) + pow(imageExtent.height, 2)))
       return 5 // ?
     }
-
+    let context = CIContext(options: nil)
     // let min: Double = 0
     let max: Double = 100
     let value: Double = 40
@@ -141,10 +141,28 @@ public struct BlurredMask: GraphicsDrawing {
           "inputColor": grayColor,
           "inputIntensity": 1.0
       ])
-      
       .cropped(to: image.extent)
       
-    return outputImage
+      
+      // Convert the CIImage with filters applied to CGImage
+         guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
+             return nil
+         }
+      
+      // Render the CGImage onto a white background
+         let renderer = UIGraphicsImageRenderer(size: outputImage.extent.size)
+         let imageWithWhiteBackground = renderer.image { ctx in
+             // Fill the context with white color
+             UIColor.init(red: 0.8, green: 0.8, blue: 0.8, alpha: 1).setFill()
+             ctx.fill(CGRect(origin: .zero, size: outputImage.extent.size))
+
+             // Draw the processed image on top of the white background
+             ctx.cgContext.draw(cgImage, in: CGRect(origin: .zero, size: outputImage.extent.size))
+         }
+
+      return imageWithWhiteBackground.ciImage
+      
+//    return outputImage
   }
     
     public static func fakeMask(image: CIImage) -> CIImage? {
