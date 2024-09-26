@@ -11,8 +11,8 @@ import UIKit
 import BrightroomEngine
 #endif
 
-final class _ImageView: UIImageView, CIImageDisplaying {
-  var postProcessing: (CIImage) -> CIImage = { $0 } {
+public final class _ImageView: UIImageView, CIImageDisplaying {
+    public var postProcessing: (CIImage) -> CIImage = { $0 } {
     didSet {
       update()
     }
@@ -29,7 +29,7 @@ final class _ImageView: UIImageView, CIImageDisplaying {
 
   private var ciImage: CIImage?
 
-  override var isHidden: Bool {
+    public override var isHidden: Bool {
     didSet {
       if isHidden == false {
         update()
@@ -37,7 +37,7 @@ final class _ImageView: UIImageView, CIImageDisplaying {
     }
   }
 
-  func display(image: CIImage?) {
+    public func display(image: CIImage?) {
     ciImage = image
 
     if isHidden == false {

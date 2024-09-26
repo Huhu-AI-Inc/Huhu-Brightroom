@@ -117,16 +117,18 @@ public struct BlurredMask: GraphicsDrawing {
 
   public static func blur(image: CIImage) -> CIImage? {
     func radius(_ imageExtent: CGRect) -> Double {
-      let v = Double(sqrt(pow(imageExtent.width, 2) + pow(imageExtent.height, 2)))
-      return v / 20 // ?
+//      let v = Double(sqrt(pow(imageExtent.width, 2) + pow(imageExtent.height, 2)))
+      return 5 // ?
     }
-
+    let context = CIContext(options: nil)
     // let min: Double = 0
     let max: Double = 100
     let value: Double = 40
 
     let _radius = radius(image.extent) * value / max
-
+    
+    let grayColor = CIColor(red: 0.5, green: 0.5, blue: 0.5)  // This represents a middle gray. Adjust as needed.
+      
     let outputImage = image
       .clamped(to: image.extent)
       .applyingFilter(
@@ -135,8 +137,52 @@ public struct BlurredMask: GraphicsDrawing {
           "inputRadius": _radius,
         ]
       )
+      .applyingFilter("CIColorMonochrome", parameters: [
+          "inputColor": grayColor,
+          "inputIntensity": 1.0
+      ])
       .cropped(to: image.extent)
-
-    return outputImage
+      
+      
+    return convertToWhite(image: outputImage)
   }
+    
+    public static func convertToWhite(image: CIImage) -> CIImage? {
+        // Create a CIImage with a solid white color
+        let grayColor = CIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
+        let whiteImage = CIImage(color: grayColor).cropped(to: image.extent)
+
+        // Use CISourceOverCompositing to overlay the white image over the original image
+        let parameters: [String: Any] = [kCIInputBackgroundImageKey: image, kCIInputImageKey: whiteImage]
+        guard let filter = CIFilter(name: "CISourceOverCompositing", parameters: parameters),
+              let outputImage = filter.outputImage else {
+            return nil
+        }
+
+        return outputImage
+    }
+    
+    
+    
+    public static func fakeMask(image: CIImage) -> CIImage? {
+        
+        return generateGrayImage(width: image.extent.width, height: image.extent.height, grayValue: 0.8)
+    }
+    
+    
+    static func generateGrayImage(width: CGFloat, height: CGFloat, grayValue: CGFloat) -> CIImage? {
+        // Ensure the gray value is between 0.0 and 1.0
+        let clampedGray = max(0.0, min(1.0, grayValue))
+        
+        // Create a color from the gray value
+        let color = CIColor(red: clampedGray, green: clampedGray, blue: clampedGray)
+        
+        // Use the CIColorGenerator filter to generate a CIImage of that color
+        let filter = CIFilter(name: "CIConstantColorGenerator", parameters: [kCIInputColorKey: color])
+        
+        // Set the extent of the image to the desired width and height
+        let image = filter?.outputImage?.cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
+        
+        return image
+    }
 }

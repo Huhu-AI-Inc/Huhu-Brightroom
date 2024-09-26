@@ -27,63 +27,66 @@ import BrightroomEngine
 import Verge
 
 public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDelegate {
-  private struct State: Equatable {
-    fileprivate(set) var frame: CGRect = .zero
-    fileprivate(set) var bounds: CGRect = .zero
     
-    fileprivate var hasLoaded = false
+    private struct State: Equatable {
+        public var editingState: Changes<EditingStack.State>
+        
+        fileprivate(set) var frame: CGRect = .zero
+        fileprivate(set) var bounds: CGRect = .zero
+        fileprivate var hasLoaded = false
     
-    fileprivate(set) var proposedCrop: EditingCrop?
+        fileprivate(set) var proposedCrop: EditingCrop?
     
-    fileprivate(set) var brushSize: CanvasView.BrushSize = .point(30)
+        public fileprivate(set) var brushSize: CanvasView.BrushSize = .pixel(40)
     
-    fileprivate let contentInset: UIEdgeInsets = .zero
+        fileprivate let contentInset: UIEdgeInsets = .zero
+        
+        func scrollViewFrame() -> CGRect? {
+      
+            guard let proposedCrop = proposedCrop else {
+                return nil
+            }
+      
+            let bounds = self.bounds.inset(by: contentInset)
+          
+            let size: CGSize
+            let aspectRatio = PixelAspectRatio(proposedCrop.cropExtent.size)
+            switch proposedCrop.rotation {
+                case .angle_0:
+                    size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
+                case .angle_90:
+                    size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
+                case .angle_180:
+                    size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
+                case .angle_270:
+                    size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
+            }
+      
+              return .init(
+                origin: .init(
+                  x: contentInset.left + ((bounds.width - size.width) / 2) /* centering offset */,
+                  y: contentInset.top + ((bounds.height - size.height) / 2) /* centering offset */
+                ), size: size)
+        }
     
-    func scrollViewFrame() -> CGRect? {
-      
-      guard let proposedCrop = proposedCrop else {
-        return nil
-      }
-      
-      let bounds = self.bounds.inset(by: contentInset)
-      
-      let size: CGSize
-      let aspectRatio = PixelAspectRatio(proposedCrop.cropExtent.size)
-      switch proposedCrop.rotation {
-      case .angle_0:
-        size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
-      case .angle_90:
-        size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
-      case .angle_180:
-        size = aspectRatio.sizeThatFitsWithRounding(in: bounds.size)
-      case .angle_270:
-        size = aspectRatio.swapped().sizeThatFitsWithRounding(in: bounds.size)
-      }
-      
-      return .init(
-        origin: .init(
-          x: contentInset.left + ((bounds.width - size.width) / 2) /* centering offset */,
-          y: contentInset.top + ((bounds.height - size.height) / 2) /* centering offset */
-        ),
-        size: size
-      )
-    }
-    
-    func brushPixelSize() -> CGFloat? {
-      
-      guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
-        return nil
-      }
-      
-      let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
-      
-      switch brushSize {
-      case let .point(points):
-        return points / min
-      case let .pixel(pixels):
-        return pixels
-      }
-    }
+        func brushPixelSize() -> CGFloat? {
+            print("WSI check brushPixelSize \(brushSize)")
+          guard let proposedCrop = proposedCrop, let size = scrollViewFrame()?.size else {
+              print("WSI check brushPixelSize error!")
+            return nil
+          }
+            print("WSI check brushPixelSize line1")
+          let (min, _) = proposedCrop.calculateZoomScale(scrollViewSize: size)
+            print("WSI check brushPixelSize line2 \(min) \(size)")
+          switch brushSize {
+          case let .point(points):
+              print("WSI check updated points: \(points) / \(min)")
+            return points / min
+          case let .pixel(pixels):
+              print("WSI check updated pixel: \(pixels)")
+            return pixels
+          }
+        }
   }
   
   private final class ContainerView: PixelEditorCodeBasedView {
@@ -116,13 +119,13 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   private let containerView = ContainerView()
   
-  private let backdropImageView = _ImageView()
+    public let backdropImageView = _ImageView()
   
-  private let blurryImageView = _ImageView()
+  public let blurryImageView = _ImageView()
   
-  private let drawingView = SmoothPathDrawingView()
+  public let drawingView = SmoothPathDrawingView()
   
-  private let canvasView = CanvasView()
+  public let canvasView = CanvasView()
   
   private var subscriptions = Set<AnyCancellable>()
   
@@ -130,7 +133,7 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
    
   private var hasSetupScrollViewCompleted = false
   
-  private let store: UIStateStore<State, Never>
+  private let store: Store<State, Never>
   
   private var currentBrush: OvalBrush?
   
@@ -143,16 +146,12 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
   
   public init(editingStack: EditingStack) {
     
-    self.editingStack = editingStack
-    store = .init(
-      initialState: .init(),
-      logger: nil
-    )
-            
-    super.init(frame: .zero)
+      self.editingStack = editingStack
+      self.store = .init(initialState: .init(editingState: editingStack.state))
+      super.init(frame: .zero)
     
-    setUp: do {
-      backgroundColor = .clear
+  setUp: do {
+      backgroundColor = .black
       
       addSubview(scrollView)
       
@@ -174,39 +173,35 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
       blurryImageView.accessibilityIdentifier = "blurryImageView"
       blurryImageView.isUserInteractionEnabled = false
       blurryImageView.contentMode = .scaleAspectFit
-      
       blurryImageView.mask = canvasView
+      blurryImageView.backgroundColor = .black
       clipsToBounds = true
+      
     }
     
     drawingView.handlers = drawingView.handlers&>.modify {
-      $0.willBeginPan = { [unowned self] path in
-        
-        guard let pixelSize = store.state.primitive.brushPixelSize() else {
-          assertionFailure("It seems currently loading state.")
-          return
-        }
-        
-        currentBrush = .init(color: .black, pixelSize: pixelSize)
-        
-        let drawnPath = DrawnPath(brush: currentBrush!, path: path)
-        canvasView.previewDrawnPath = drawnPath
-      }
-      $0.panning = { [unowned self] path in
-        canvasView.updatePreviewDrawing()
-      }
-      $0.didFinishPan = { [unowned self] path in
-        canvasView.updatePreviewDrawing()
-        
-        let _path = (path.copy() as! UIBezierPath)
-        
-        let drawnPath = DrawnPath(brush: currentBrush!, path: _path)
-        
-        canvasView.previewDrawnPath = nil
-        editingStack.append(blurringMaskPaths: CollectionOfOne(drawnPath))
-        
-        currentBrush = nil
-      }
+          $0.willBeginPan = { [weak self] path in
+              guard let self = self else { return }
+
+              print("WSI check brushPixelSize(): \(self.store.primitiveState.brushPixelSize())")
+              
+              currentBrush = .init(color: .black, pixelSize: self.store.primitiveState.brushPixelSize() ?? 30.0)
+            
+              let drawnPath = DrawnPath(brush: currentBrush!, path: path)
+              canvasView.previewDrawnPath = drawnPath
+          }
+          $0.panning = { [unowned self] path in
+            canvasView.updatePreviewDrawing()
+          }
+          $0.didFinishPan = { [unowned self] path in
+            canvasView.updatePreviewDrawing()
+            let _path = (path.copy() as! UIBezierPath)
+            
+            let drawnPath = DrawnPath(brush: currentBrush!, path: _path)
+            canvasView.previewDrawnPath = nil
+            editingStack.append(blurringMaskPaths: CollectionOfOne(drawnPath))
+            currentBrush = nil
+          }
     }
     
     editingStack.sinkState { [weak self] (state: Changes<EditingStack.State>) in
@@ -231,13 +226,27 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
     .store(in: &subscriptions)
     
-    defaultAppearance: do {
-      setLoadingOverlay(factory: {
-        LoadingBlurryOverlayView(effect: UIBlurEffect(style: .dark), activityIndicatorStyle: .whiteLarge)
-      })
-    }
+//    defaultAppearance: do {
+//      setLoadingOverlay(factory: {
+//          LoadingBlurryOverlayView(effect: UIBlurEffect(style: .dark), activityIndicatorStyle: .large)
+//      })
+//    }
   }
   
+    func generateCIImage(color: UIColor, size: CGSize) -> CIImage? {
+        // Convert UIColor to CIColor
+        let ciColor = CIColor(color: color)
+        
+        // Use CIFilter to create a CIImage with the specified color
+        guard let filter = CIFilter(name: "CIConstantColorGenerator") else { return nil }
+        filter.setValue(ciColor, forKey: kCIInputColorKey)
+        guard let outputImage = filter.outputImage else { return nil }
+        
+        // Crop the generated CIImage to the specified size
+        return outputImage.cropped(to: CGRect(origin: .zero, size: size))
+    }
+    
+    
   override public func willMove(toSuperview newSuperview: UIView?) {
     super.willMove(toSuperview: newSuperview)
     
@@ -303,9 +312,9 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
           
           if let state = state.mapIfPresent(\.loadedState) {
             
-            state.ifChanged(\.editingPreviewImage) { image in
-              self.backdropImageView.display(image: image)
-              self.blurryImageView.display(image: BlurredMask.blur(image: image))
+              state.ifChanged(\.editingPreviewImage) { image in
+                  self.backdropImageView.display(image: image)
+                  self.blurryImageView.display(image: BlurredMask.fakeMask(image: image))
             }
             
             state.ifChanged(\.currentEdit.drawings.blurredMaskPaths) { paths in
@@ -320,17 +329,29 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
   }
   
-  public func setLoadingOverlay(factory: (() -> UIView)?) {
-    _pixeleditor_ensureMainThread()
-    loadingOverlayFactory = factory
-  }
+      public func setLoadingOverlay(factory: (() -> UIView)?) {
+        _pixeleditor_ensureMainThread()
+        loadingOverlayFactory = factory
+      }
     
-  public func setBrushSize(_ size: CanvasView.BrushSize) {
-    store.commit {
-      $0.brushSize = size
-    }
-  }
+      public func setBrushSize(_ size: CanvasView.BrushSize) {
+          self.store.commit {
+            $0.brushSize = size
+          }
+      }
   
+//    public func setBrushSize(_ brushSize: CGFloat) {
+//        print("WSI setBrushSize called \(brushSize)")
+//      
+//        store.commit {
+//            $0.brushSize = .point(brushSize)
+//            print("WSI check $0.brushSize: \($0.brushSize)")
+//        }
+//        print("WSI test \(store.primitiveState.brushSize)")
+//        print("WSI test \(store.state.brushSize)")
+//        print("WSI test \(store.state.primitive.brushSize)")
+//    }
+    
   private func updateLoadingOverlay(displays: Bool) {
     
     if displays, let factory = self.loadingOverlayFactory {
@@ -423,47 +444,48 @@ public final class BlurryMaskingView: PixelEditorCodeBasedView, UIScrollViewDele
     }
   }
   
-  override public func layoutSubviews() {
-    super.layoutSubviews()
-    
-    store.commit {
-      if $0.frame != frame {
-        $0.frame = frame
+      override public func layoutSubviews() {
+        super.layoutSubviews()
+        
+        store.commit {
+          if $0.frame != frame {
+            $0.frame = frame
+          }
+          if $0.bounds != bounds {
+            $0.bounds = bounds
+          }
+        }
+        
       }
-      if $0.bounds != bounds {
-        $0.bounds = bounds
-      }
-    }
-    
-  }
   
   // MARK: UIScrollViewDelegate
   
-  public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-    return containerView
-  }
+      public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return containerView
+      }
   
-  public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-    func adjustFrameToCenterOnZooming() {
-      var frameToCenter = containerView.frame
-      
-      // center horizontally
-      if frameToCenter.size.width < scrollView.bounds.width {
-        frameToCenter.origin.x = (scrollView.bounds.width - frameToCenter.size.width) / 2
-      } else {
-        frameToCenter.origin.x = 0
+      public func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        func adjustFrameToCenterOnZooming() {
+          var frameToCenter = containerView.frame
+          
+          // center horizontally
+          if frameToCenter.size.width < scrollView.bounds.width {
+            frameToCenter.origin.x = (scrollView.bounds.width - frameToCenter.size.width) / 2
+          } else {
+            frameToCenter.origin.x = 0
+          }
+          
+          // center vertically
+          if frameToCenter.size.height < scrollView.bounds.height {
+            frameToCenter.origin.y = (scrollView.bounds.height - frameToCenter.size.height) / 2
+          } else {
+            frameToCenter.origin.y = 0
+          }
+          
+          containerView.frame = frameToCenter
+        }
+        
+        adjustFrameToCenterOnZooming()
       }
-      
-      // center vertically
-      if frameToCenter.size.height < scrollView.bounds.height {
-        frameToCenter.origin.y = (scrollView.bounds.height - frameToCenter.size.height) / 2
-      } else {
-        frameToCenter.origin.y = 0
-      }
-      
-      containerView.frame = frameToCenter
-    }
-    
-    adjustFrameToCenterOnZooming()
-  }
 }
+
